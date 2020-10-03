@@ -6,6 +6,7 @@ from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from . import models
+
 # Create your views here.
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated,])
@@ -13,14 +14,14 @@ def Brand(request):
     if request.method == 'POST':
         try:
                 brand = request.data
-                serializer = serializers.Brands_Serializer(data=brand)
+                serializer = serializers.Brands_Serializer_post(data=brand)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 res={"success":True}
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
-        except:
+        except Exception as e:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         brands=models.Brands.objects.all()
@@ -40,11 +41,11 @@ def Body_type(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         body=models.Body_types.objects.all()
-        serializer=serializers.Body_types_Serializer(body, many=True)
+        serializer=serializers.Body_types_Serializer_get(body, many=True)
         res={"success":True}
         return Response({**res, "data":serializer.data}, status=status.HTTP_201_CREATED)
 @api_view(['GET', 'POST'])
@@ -60,7 +61,7 @@ def Bike_models(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         bikemodels=models.Bike_models.objects.all()
@@ -73,14 +74,14 @@ def Parts_cat(request):
     if request.method == 'POST':
         try:
                 partscat = request.data
-                serializer = serializers.Parts_categories_Serializer(data=partscat)
+                serializer = serializers.Parts_categories_Serializer_create(data=partscat)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 res={"success":True}
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         partscat=models.Parts_categories.objects.all()
@@ -101,7 +102,7 @@ def Products(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         product=models.Product.objects.all()
@@ -122,34 +123,41 @@ def Subcategory(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         subcat=models.Subcategories.objects.all()
-        serializer=serializers.Subcategories_Serializer(subcat, many=True)
+        serializer=serializers.Subcategories_Serializer_Get(subcat, many=True)
         res={"success":True}
         return Response({**res, "data":serializer.data}, status=status.HTTP_201_CREATED)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated,])
-def Suppliers(request):
-    if request.method == 'POST':
-        try:
-                #print(request.user.ismanager())
-                suppliers = request.data
-                serializer = serializers.Suppliers_Serializer(data=suppliers)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                res={"success":True}
-                return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
-        except:
-                res={"success":False}
-                return Response({**res, **serializer.errors})
+def Suppliers(request):        
+        if request.method == 'POST':
+                if(request.user.ismanager()):
+                        try:
+                                suppliers = request.data
+                                serializer = serializers.Suppliers_Serializer(data=suppliers)
+                                serializer.is_valid(raise_exception=True)
+                                serializer.save()
+                                res={"success":True}
+                                return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
+                        except:
+                                res={"success":False}
+                                return Response({**res},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                        res={
+                        "success":False,
+                        "message":"Not authorized",
+                        }
+                        return Response(res, status=status.HTTP_401_UNAUTHORIZED)
 
-    if request.method == 'GET':
-        suppliers=models.Suppliers.objects.all()
-        serializer=serializers.Suppliers_Serializer(suppliers, many=True)
-        res={"success":True}
-        return Response({**res, "data":serializer.data}, status=status.HTTP_201_CREATED)
+        if request.method == 'GET':
+                suppliers=models.Suppliers.objects.all()
+                serializer=serializers.Suppliers_Serializer_Get(suppliers, many=True)
+                res={"success":True}
+                return Response({**res, "data":serializer.data}, status=status.HTTP_201_CREATED)
+        
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated,])
 def Supplies(request):
@@ -167,7 +175,7 @@ def Supplies(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response({**res, **serializer.errors})
+                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         supplies=models.Supplies.objects.all()

@@ -1,47 +1,93 @@
 from rest_framework import serializers
 from . import models
-class Brands_Serializer(serializers.ModelSerializer): 
+from django.utils import timezone
+
+
+class DateTimeFieldWihTZ(serializers.DateTimeField):
+    '''Class to make output of a DateTime Field timezone aware
+    '''
+    def to_representation(self, value):
+        value = timezone.localtime(value)
+        return super(DateTimeFieldWihTZ, self).to_representation(value)
+#brands serializer       
+class Brands_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Brands
-        exclude=['entry_date']
+        fields = '__all__'
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
+class Brands_Serializer_post(serializers.ModelSerializer): 
+    class Meta(object):
+        model = models.Brands
+        fields = ['brand_name']
 
+#bodytype
 class Body_types_Serializer(serializers.ModelSerializer): 
     class Meta(object):
         model = models.Body_types
         exclude=['entry_date']
+class Body_types_Serializer_get(serializers.ModelSerializer): 
+    class Meta(object):
+        model = models.Body_types
+        fields = '__all__'
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
+
+#bike models
 class Bike_models_Serializer(serializers.ModelSerializer):
     brand_name=serializers.StringRelatedField(many=False)
     body_type=serializers.StringRelatedField(many=False)
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
     class Meta(object):
         model = models.Bike_models
-        exclude=['entry_date']
+        fields = '__all__'
 class Bike_models_create_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Bike_models
         exclude=['entry_date']
+#categories
+class Parts_categories_Serializer_create(serializers.ModelSerializer):
+    class Meta(object):
+        model = models.Parts_categories
+        exclude=['entry_date','image']
 class Parts_categories_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Parts_categories
-        exclude=['entry_date']
+        fields = '__all__'
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
+#products
 class Product_Serializer(serializers.ModelSerializer):
     #bike_model=serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     parts_category=serializers.StringRelatedField(many=False)
     bike_model=serializers.StringRelatedField(many=True)
     class Meta(object):
         model = models.Product
-        exclude=['entry_date']
+        fields = '__all__'
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
 class Product_Create_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Product
         exclude=['entry_date']
+#subcategories
 class Subcategories_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Subcategories
         exclude=['entry_date']
+class Subcategories_Serializer_Get(serializers.ModelSerializer):
+    class Meta(object):
+        model = models.Subcategories
+        fields = '__all__'
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
+
+#suppliers
+class Suppliers_Serializer_Get(serializers.ModelSerializer):
+    class Meta(object):
+        model = models.Suppliers
+        fields = '__all__'
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
 class Suppliers_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Suppliers
-        exclude=['entry_date']
+        fields = ['supplier_name']
+#supplies
 class Supplies_Serializer(serializers.ModelSerializer):
     supplier=serializers.StringRelatedField(many=False)
     product=serializers.StringRelatedField(many=False)
@@ -52,6 +98,7 @@ class Supplies_create_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Supplies
         exclude=['entry_date']
+#store
 class Store_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Supplies
