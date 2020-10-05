@@ -102,7 +102,7 @@ def Products(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         product=models.Product.objects.all()
