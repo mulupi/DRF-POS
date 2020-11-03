@@ -175,10 +175,34 @@ def Supplies(request):
                 return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
         except:
                 res={"success":False}
-                return Response(res,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         supplies=models.Supplies.objects.all()
         serializer=serializers.Supplies_Serializer(supplies, many=True)
+        res={"success":True}
+        return Response({**res, "data":serializer.data}, status=status.HTTP_201_CREATED)
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated,])
+def Store(request):
+    if request.method == 'PUT':
+        try:
+                #print(request.user.ismanager())
+                supplies = request.data
+                serializer = serializers.Supplies_create_Serializer(data=supplies)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                sup_id=serializer.data["id"]
+                rem_units=serializer.data["units"]                
+                models.Store(supply=models.Supplies.objects.get(id=sup_id),remaining_units=rem_units).save()
+                res={"success":True}
+                return Response({**res, **serializer.data}, status=status.HTTP_201_CREATED)
+        except:
+                res={"success":False}
+                return Response(serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if request.method == 'GET':
+        store=models.Store.objects.all()
+        serializer=serializers.Store_Serializer(store, many=True)
         res={"success":True}
         return Response({**res, "data":serializer.data}, status=status.HTTP_201_CREATED)

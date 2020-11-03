@@ -91,15 +91,24 @@ class Suppliers_Serializer(serializers.ModelSerializer):
 class Supplies_Serializer(serializers.ModelSerializer):
     supplier=serializers.StringRelatedField(many=False)
     product=serializers.StringRelatedField(many=False)
+    entry_date = DateTimeFieldWihTZ(format='%Y-%m-%d %H:%M')
     class Meta(object):
         model = models.Supplies
-        exclude=['entry_date']
+        fields = '__all__'
 class Supplies_create_Serializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Supplies
         exclude=['entry_date']
 #store
 class Store_Serializer(serializers.ModelSerializer):
+    supplier_name=serializers.ReadOnlyField(source='supply.supplier.supplier_name')
+    supplier_id=serializers.ReadOnlyField(source='supply.supplier.id')
+    product_name=serializers.ReadOnlyField(source='supply.product.product_name')
+    product_code=serializers.ReadOnlyField(source='supply.product.product_code')
+    image=serializers.ImageField(source='supply.product.image')
+    product_description=serializers.ReadOnlyField(source='supply.product.description')
+    cost_per_unit=serializers.ReadOnlyField(source='supply.cost_per_unit')
+    Price_per_unit=serializers.ReadOnlyField(source='supply.price_per_unit')
     class Meta(object):
-        model = models.Supplies
-        exclude=['entry_date']
+        model = models.Store
+        fields='__all__'

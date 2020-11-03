@@ -27,20 +27,21 @@ class Parts_categories(models.Model):
     entry_date = models.DateTimeField(default=timezone.now, editable=False)
     def __str__(self):
         return self.category_name
+class Subcategories(models.Model):
+    title=models.CharField(max_length=30, unique=True)    
+    entry_date = models.DateTimeField(default=timezone.now, editable=False)
 class Product(models.Model):
     product_code = models.IntegerField(primary_key=True)
     manufacturer = models.CharField(max_length=30)
     product_name = models.CharField(max_length=30)
     parts_category=models.ForeignKey(Parts_categories, on_delete=models.CASCADE)
+    subcategory=models.ForeignKey(Subcategories, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images/products/')
     description=models.TextField()
     bike_model=models.ManyToManyField(Bike_models)
     entry_date = models.DateTimeField(default=timezone.now, editable=False)
     def __str__(self):
         return '%d: %s' % (self.product_code,self.product_name)
-class Subcategories(models.Model):
-    title=models.CharField(max_length=30, unique=True)
-    product=models.ForeignKey(Product, on_delete=models.CASCADE)
-    entry_date = models.DateTimeField(default=timezone.now, editable=False)
 class Suppliers(models.Model):
     supplier_name=models.CharField(max_length=60, unique=True)
     entry_date = models.DateTimeField(default=timezone.now, editable=False)
@@ -52,6 +53,9 @@ class Supplies(models.Model):
     product=models.ForeignKey(Product, on_delete=models.CASCADE)
     entry_date = models.DateTimeField(default=timezone.now, editable=False)
     cost_per_unit=models.FloatField()
+    price_per_unit=models.FloatField()
+    def __str__(self):
+        return self.supplier.supplier_name
 class Store(models.Model):
     supply=models.OneToOneField(Supplies, on_delete=models.CASCADE, primary_key=True)
     remaining_units=models.PositiveIntegerField()
@@ -62,3 +66,4 @@ class Sales(models.Model):
     units=models.PositiveIntegerField()
     entry_date = models.DateTimeField(default=timezone.now, editable=False)
     supply=models.ForeignKey(Supplies,on_delete=models.CASCADE)
+    profit=models.FloatField()

@@ -10,4 +10,5 @@ urlpatterns = [
     path('subcat/', views.Subcategory, name="manages_subcategories"),
     path('suppliers/', views.Suppliers, name="manages_suppliers"),
     path('supplies/', views.Supplies, name="manages_supplies"),
+    path('store/', views.Store, name="manages_store"),
 ]
